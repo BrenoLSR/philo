@@ -1,28 +1,52 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   clean.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: brendos- <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/25 11:30:42 by brendos-          #+#    #+#             */
+/*   Updated: 2026/01/25 11:30:45 by brendos-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-void	clean_philos(t_philo *philos, int i)
+static void	clean_forks(pthread_mutex_t *forks, int count)
 {
-	while (i--)
-		pthread_mutex_destroy(&philos[i].eat_lock);
-	free(philos);
+	int	i;
+
+	if (!forks)
+		return ;
+	i = 0;
+	while (i < count)
+	{
+		pthread_mutex_destroy(&forks[i]);
+		i++;
+	}
+	free(forks);
 }
 
-void	clean_forks(t_mutex *forks, int i)
+static void	clean_philos(t_philo *philos)
 {
-	while (i--)
-		pthread_mutex_destroy(&forks[i]);
-	free(forks);
+	if (!philos)
+		return ;
+	free(philos);
 }
 
 void	clean_table(t_table *table)
 {
 	if (!table)
 		return ;
-	if (table->philos)
-		clean_philos(table->philos, table->philo_nbr);
 	if (table->forks)
-		clean_forks(table->forks, table->philo_nbr);
-	pthread_mutex_destroy(&table->sim_lock);
-	pthread_mutex_destroy(&table->write_lock);
-	free(table);
+	{
+		clean_forks(table->forks, table->philos_nbr);
+		table->forks = NULL;
+	}
+	if (table->philos)
+	{
+		clean_philos(table->philos);
+		table->philos = NULL;
+	}
+	pthread_mutex_destroy(&table->lock_mtx);
 }

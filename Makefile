@@ -1,56 +1,55 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: brendos- <marvin@42.fr>                    +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2026/01/25 11:32:21 by brendos-          #+#    #+#              #
+#    Updated: 2026/01/25 11:32:25 by brendos-         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 NAME = philo
-EXEC = $(BIN_DIR)/$(NAME)
 
-SRC_DIR = src
-OBJ_DIR = obj
-BIN_DIR = bin
-INCLUDE_DIR = include
+SRCS = \
+	main.c \
+	utils.c \
+	ft_atol.c \
+	parsing.c \
+	table_init.c \
+	clean.c \
+	philo.c \
+	routine.c \
+	monitor.c \
+	time.c	\
+	simulation.c
 
-SRC_FILES = main.c \
-		utils.c \
-		sim_utils.c \
-		parsing.c \
-		init.c \
-		clean.c \
-		philo.c \
-		monitor.c \
-
-
-SRCS = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
-OBJS = $(addprefix $(OBJ_DIR)/, $(SRC_FILES:.c=.o))
-HEADERS = $(addprefix $(INCLUDE_DIR)/, philo.h)
+OBJS = $(SRCS:.c=.o)
 
 CC = cc
-AR = ar
+CFLAGS = -Wall -Wextra -Werror -g
+PTHREAD = -pthread
 
-ARFLAGS = crs
-CCFLAGS = -Wall -Wextra -Werror -g
-IFLAGS = -I $(INCLUDE_DIR)
+RM = rm -f
 
-RM = rm
-RMFLAGS = -rf
+all: $(NAME)
 
-all: $(EXEC)
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(PTHREAD) -o $(NAME)
+	@echo "[\033[0;32mOK\033[0m] $(NAME) compiled!"
 
-$(EXEC) : $(OBJS) $(LIBFT)
-		@mkdir -p $(BIN_DIR)
-		@$(CC) $(CCFLAGS) $(OBJS) -o $(EXEC)
-		@echo "[\033[0;32mOK\033[0m] $(NAME) COMPILED in $(BIN_DIR)/!"
+%.o: %.c philo.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.c $(HEADERS)
-		@mkdir -p $(OBJ_DIR)
-		@$(CC) $(CCFLAGS) $(IFLAGS) -c $< -o $@
-		@echo "[\033[0;32mOK\033[0m] COMPILED $<"
+clean:
+	$(RM) $(OBJS)
+	@echo "[\033[0;32mOK\033[0m] Objects cleaned!"
 
-clean :
-		@$(RM) $(RMFLAGS) $(OBJ_DIR)
-		@echo "[\033[0;32mOK\033[0m] CLEAR files!"
+fclean: clean
+	$(RM) $(NAME)
+	@echo "[\033[0;32mOK\033[0m] Binary removed!"
 
-fclean : clean
-		@$(RM) $(RMFLAGS) $(BIN_DIR)
-		@echo "[\033[0;32mOK\033[0m] ALL CLEAR!"
-
-re : fclean all
-		$(info Project REBUILD!)
+re: fclean all
 
 .PHONY: all clean fclean re

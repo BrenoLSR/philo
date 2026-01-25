@@ -1,67 +1,56 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: brendos- <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/25 11:36:04 by brendos-          #+#    #+#             */
+/*   Updated: 2026/01/25 11:36:06 by brendos-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-long	ft_atol(char *str)
+int	is_space(char c)
 {
-	long	result;
-
-	result = 0;
-	while ((*str >= '\t' && *str <= '\r') || *str == ' ')
-		str++;
-	if (*str == '+')
-		str++;
-	else if (*str == '-')
-		return (0);
-	if (*str < '0' || *str > '9')
-		return (0);
-	while (*str >= '0' && *str <= '9')
-	{
-		result = result * 10 + (*str - '0');
-		if (result > INT_MAX)
-			return (0);
-		str++;
-	}
-	if (*str != '\0')
-		return (0);
-	return (result);
+	return ((c >= 9 && c <= 13) || c == 32);
 }
 
-static void	ft_bzero(void *s, size_t n)
+int	is_digit(char c)
 {
-	unsigned char	*i;
+	return (c >= '0' && c <= '9');
+}
 
-	i = (unsigned char *)s;
-	while (n--)
-	{
-		*i = '\0';
+static int	ft_strcmp(const char *s1, const char *s2)
+{
+	int	i;
+
+	i = 0;
+	while (s1[i] && s2[i] && s1[i] == s2[i])
 		i++;
-	}
+	return ((unsigned char)s1[i] - (unsigned char)s2[i]);
 }
 
-void	*ft_calloc(size_t nmemb, size_t size)
+void	safe_print(t_table *table, int id, const char *msg)
 {
-	size_t	total;
-	void	*aloc;
+	long	now;
+	long	relative_time;
 
-	if (nmemb == 0 || size == 0)
+	pthread_mutex_lock(&table->lock_mtx);
+	if (table->stop_simulation && ft_strcmp(msg, "died") != 0)
 	{
-		nmemb = 1;
-		size = 1;
+		pthread_mutex_unlock(&table->lock_mtx);
+		return ;
 	}
-	if (nmemb > ((size_t)-1) / size)
-		return (NULL);
-	total = nmemb * size;
-	aloc = malloc(total);
-	if (aloc == NULL)
-		return (NULL);
-	ft_bzero(aloc, total);
-	return (aloc);
+	now = get_time_ms();
+	relative_time = now - table->start_time;
+	printf("%ld %d %s\n", relative_time, id, msg);
+	pthread_mutex_unlock(&table->lock_mtx);
 }
 
-long	get_time_ms(void)
+int	error(const char *msg)
 {
-	struct timeval	time;
-
-	gettimeofday(&time, NULL);
-	return ((long long)time.tv_sec * 1000
-		+ (long long)time.tv_usec / 1000);
+	printf("Error: %s\n", msg);
+	return (0);
 }

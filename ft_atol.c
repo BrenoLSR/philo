@@ -1,38 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   ft_atol.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: brendos- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/25 11:31:57 by brendos-          #+#    #+#             */
-/*   Updated: 2026/01/25 11:32:05 by brendos-         ###   ########.fr       */
+/*   Created: 2026/01/25 11:31:36 by brendos-          #+#    #+#             */
+/*   Updated: 2026/01/25 11:31:43 by brendos-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	main(int argc, char **argv)
+long	ft_atol(const char *str)
 {
-	t_table	table;
+	size_t	i;
+	long	res;
 
-	if (argc < 5 || argc > 6)
+	i = 0;
+	res = 0;
+	while (is_space(str[i]))
+		i++;
+	if (str[i] == '+' || str[i] == '-')
+		i++;
+	if (!is_digit(str[i]))
+		return (-1);
+	while (is_digit(str[i]))
 	{
-		write(2, "Error: wrong number of arguments\n", 33);
-		return (1);
+		res = res * 10 + (str[i] - '0');
+		if (res > INT_MAX)
+			return (-1);
+		i++;
 	}
-	if (!parse_args(argc, argv, &table) || !init_table(&table))
-		return (1);
-	if (!init_philos(&table))
-	{
-		clean_table(&table);
-		return (1);
-	}
-	if (!sim_start(&table))
-	{
-		clean_table(&table);
-		return (1);
-	}
-	clean_table(&table);
-	return (0);
+	while (is_space(str[i]))
+		i++;
+	if (str[i] != '\0')
+		return (-1);
+	return (res);
 }

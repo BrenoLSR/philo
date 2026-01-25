@@ -1,38 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   time.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: brendos- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/25 11:31:57 by brendos-          #+#    #+#             */
-/*   Updated: 2026/01/25 11:32:05 by brendos-         ###   ########.fr       */
+/*   Created: 2026/01/25 11:35:42 by brendos-          #+#    #+#             */
+/*   Updated: 2026/01/25 11:35:44 by brendos-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	main(int argc, char **argv)
+long	get_time_ms(void)
 {
-	t_table	table;
+	struct timeval	time;
 
-	if (argc < 5 || argc > 6)
+	gettimeofday(&time, NULL);
+	return ((long long)time.tv_sec * 1000
+		+ (long long)time.tv_usec / 1000);
+}
+
+void	smart_sleep(t_table *table, long wakeup)
+{
+	long	start;
+
+	start = get_time_ms() + wakeup;
+	while (get_time_ms() < start)
 	{
-		write(2, "Error: wrong number of arguments\n", 33);
-		return (1);
+		if (table->stop_simulation)
+			break ;
+		usleep(100);
 	}
-	if (!parse_args(argc, argv, &table) || !init_table(&table))
-		return (1);
-	if (!init_philos(&table))
-	{
-		clean_table(&table);
-		return (1);
-	}
-	if (!sim_start(&table))
-	{
-		clean_table(&table);
-		return (1);
-	}
-	clean_table(&table);
-	return (0);
 }
